@@ -1,15 +1,2534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
 
 
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
 
 
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
 
-AI Capabilities Atlas
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
 
 
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
 
-AI Capabilities Living Atlas
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
 
 
-Interactive directory of AI tools - Full content will be updated shortly.
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
 
 
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+      <div class="section-title">Sort</div>
+      <select id="sort" class="select">
+        <option value="impact_total">Highest Overall Impact</option>
+        <option value="impact_planetary">Highest Planetary Impact</option>
+        <option value="maturity">Deployment Maturity</option>
+        <option value="domain">Domain A→Z</option>
+        <option value="sub">Subdomain A→Z</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn secondary" id="printPdf">Print</button>
+        <button class="btn secondary" id="resetFilters">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="tabs">
+      <div id="tabGrid" class="tab active">Cards</div>
+      <div id="tabGraph" class="tab">Network Graph</div>
+    </div>
+
+    <div id="gridPane">
+      <div id="count" class="section-title"></div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No results. Try clearing some filters.</div>
+    </div>
+
+    <div id="graphPane">
+      <div id="graph"></div>
+      <div class="meta" style="margin-top:8px;">Graph shows items matching your current filters. Drag nodes to reposition.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const atlas = {"_meta": {"version": "v1.4.0-pre", "changelog": {"v1.1": "Added oceanography, paleoge<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Capabilities Living Atlas — v1.4.0</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1D6QTX593T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-1D6QTX593T');
+</script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #94a3b8;
+    --text: #e5e7eb;
+    --accent: #22d3ee;
+    --chip: #0ea5e9;
+    --card: #0b1220;
+    --border: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  header h1 { font-size: 20px; margin: 0 0 8px; }
+  header .meta { font-size: 12px; color: var(--muted); }
+  .container { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 64px); }
+  aside {
+    border-right: 1px solid var(--border); padding: 16px; background: var(--panel);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow: auto;
+  }
+  main { padding: 16px; }
+  .section-title { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin: 18px 0 8px; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(34,211,238,0.12); color: #a5f3fc; font-size: 12px; margin: 4px 6px 0 0; border: 1px solid rgba(34,211,238,0.25);}
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    width: 100%; padding: 10px 12px; background: #0b1220; border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    outline: none;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .pill input { margin: 0; }
+  .range { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .range input[type="range"] { width: 100%; }
+  .btn {
+    display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,#0ea5e9,#22d3ee);
+    color:#001219; border:0; border-radius:10px; padding:10px 12px; font-weight:600; cursor:pointer;
+  }
+  .btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+  .card h3 { margin: 6px 0 6px; font-size: 16px; }
+  .tools { font-size: 12px; color: var(--muted); }
+.tools a{ color:#a5f3fc; text-decoration:none; } .tools a:hover{ text-decoration:underline; } .tools-icons{ margin-left:4px; }
+  .meta-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .links { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .domain-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+  .select { width: 100%; background:#0b1220; color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px 10px; }
+  .heat { margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px; }
+  .bar { height: 8px; border-radius: 6px; overflow: hidden; background: #0b1220; border:1px solid var(--border); position: relative; }
+  .bar > span { display:block; height:100%; }
+  .bar-label { font-size:11px; color: var(--muted); display:flex; justify-content:space-between; margin-top:2px;}
+  .tabs { display:flex; gap:8px; margin-bottom:10px; }
+  .tab { padding:6px 10px; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:#0b1220; }
+  .tab.active { background: linear-gradient(135deg,#0ea5e9,#22d3ee); color:#001219; border:0; }
+  #graphPane { display:none; }
+  #graph { width:100%; height:70vh; border:1px solid var(--border); border-radius:12px; background:#0b1220; }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Capabilities Living Atlas — v1.3.7a (Interactive)</h1>
+  <div class="meta">Adds Video/3D, Mental Health, Ag Robotics, Supply Chain, Water Systems, Causal/Federated/Formal, Autonomous Science, Quantum ML, Space Systems, GCR + economics filters.</div>
+</header>
+
+<div class="container">
+  <aside class="filters">
+    <div class="section">
+      <div class="section-title">Search</div>
+      <input id="search" type="text" placeholder="Search domains, subdomains, tools" />
+    </div>
+
+    <div class="section">
+      <div class="section-title">Maturity</div>
+      <div class="row" id="maturity"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tags</div>
+      <div class="row" id="tags"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllTags" type="checkbox"> require all tags</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dependencies</div>
+      <div class="row" id="deps"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllDeps" type="checkbox"> require all deps</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Risk Profile</div>
+      <div class="row" id="risk"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllRisk" type="checkbox"> require all risks</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Compute Requirements</div>
+      <div class="row" id="compute"></div>
+      <label class="pill" style="margin-top:6px;"><input id="reqAllCompute" type="checkbox"> require all compute</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Regulation Level</div>
+      <div class="row" id="reg"></div>
+      <!-- regulation is single-valued, no 'require all' -->
+    </div>
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="row" id="license"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Platforms</div>
+      <div class="row" id="platforms"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Sources</div>
+      <div id="sources" class="row"></div>
+    </div>
+
+
+    <div class="section">
+      <div class="section-title">Tool Traits</div>
+      <label class="pill"><input id="onlyOSS" type="checkbox"> open‑source available</label>
+      <label class="pill" style="margin-left:6px;"><input id="onlyApp" type="checkbox"> mobile app available</label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Impact (min)</div>
+      <div class="range"><label>Personal</label><input id="impPersonal" type="range" min="0" max="5" value="0"><span id="vPersonal">0</span></div>
+      <div class="range"><label>Societal</label><input id="impSocietal" type="range" min="0" max="5" value="0"><span id="vSocietal">0</span></div>
+      <div class="range"><label>Planetary</label><input id="impPlanetary" type="range" min="0" max="5" value="0"><span id="vPlanetary">0</span></div>
+    </div>
+
+    <div class="section">
+  <div class="section-title">Economics</div>
+  <div class="range"><label>Economic Impact</label><input id="impEcon" type="range" min="0" max="5" value="0"><span id="vEcon">0</span></div>
+  <div class="range"><label>Adoption (%)</label><input id="adoption" type="range" min="0" max="100" value="0"><span id="vAdoption">0</span></div>
+  <div class="row" style="margin-top:6px;">
+    <select id="carbon" class="select">
+      <option value="">Carbon: any</option>
+      <option value="low">Low</o
