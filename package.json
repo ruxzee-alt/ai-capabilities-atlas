@@ -1,0 +1,11 @@
+{
+  "name": "ai-capabilities-atlas",
+  "version": "1.0.0",
+  "description": "Interactive AI Capabilities Living Atlas - A comprehensive directory of AI tools with filters and network graph visualization",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "author": "",
+  "license": "ISC"
+}

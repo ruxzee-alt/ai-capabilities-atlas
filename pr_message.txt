@@ -1,0 +1,13 @@
+🧪 Add tests for impactColor interpolation
+
+🎯 What: The testing gap addressed
+Implemented tests for the `impactColor` function to ensure correct interpolation and edge case handling. Created a robust extraction script to parse the function dynamically from `index.html`.
+
+📊 Coverage: What scenarios are now tested
+- Value clamping for `< 0` and `> 5`.
+- Start color exact match for `0`.
+- End color exact match for `5`.
+- Intermediate interpolation (`v = 2.5`).
+
+✨ Result: The improvement in test coverage
+`impactColor` edge cases and linear interpolation accuracy are now guaranteed by unit tests. Ensures reliable UI feedback rendering in the heatbar component.
