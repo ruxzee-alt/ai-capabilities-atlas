@@ -449,7 +449,10 @@ function matchesFilters(payload, domain, sub) {
   if (state.carbon && (carbonVal||"") !== state.carbon) return false;
 
   if (state.search) {
-    const hay = [domain, sub, (payload.tools||[])].join(' ').toLowerCase();
+    let hay = payload._searchHay;
+    if (!hay) {
+      hay = payload._searchHay = (domain + ' ' + sub + ' ' + (payload.tools||[])).toLowerCase();
+    }
     if (!hay.includes(state.search)) return false;
   }
   return true;
