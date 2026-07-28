@@ -592,12 +592,7 @@ const tools = toolsArr.map(name => {
 }
 
 // --------- Simple Force-Directed Graph ---------
-function renderGraph() {
-  const pane = document.getElementById('graph');
-  pane.innerHTML = '';
-  const width = pane.clientWidth || 800;
-  const height = pane.clientHeight || 600;
-
+function initGraphData(width, height) {
   let nodes = [];
   let links = [];
   const nodeIndex = new Map();
@@ -625,16 +620,15 @@ function renderGraph() {
     }
   }
 
-  if (nodes.length === 0) {
-    pane.innerHTML = '<div style="padding:16px;color:#94a3b8">No results for current filters.</div>';
-    return;
-  }
-
   if (nodes.length > 500) {
     nodes = nodes.slice(0, 500);
     links = links.filter(l => l.source < 500 && l.target < 500);
   }
 
+  return { nodes, links };
+}
+
+function createGraphDOM(pane, nodes, links) {
   const svgNS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('width', '100%');
@@ -683,6 +677,10 @@ function renderGraph() {
     return g;
   });
 
+  return { svg, linkEls, nodeEls };
+}
+
+function runSimulation(nodes, links, nodeEls, linkEls, width, height) {
   function tick() {
     const repulse = 1500;
     const spring = 0.02;
@@ -738,6 +736,24 @@ function renderGraph() {
     requestAnimationFrame(tick);
   }
   tick();
+}
+
+function renderGraph() {
+  const pane = document.getElementById('graph');
+  pane.innerHTML = '';
+  const width = pane.clientWidth || 800;
+  const height = pane.clientHeight || 600;
+
+  const { nodes, links } = initGraphData(width, height);
+
+  if (nodes.length === 0) {
+    pane.innerHTML = '<div style="padding:16px;color:#94a3b8">No results for current filters.</div>';
+    return;
+  }
+
+  const { svg, linkEls, nodeEls } = createGraphDOM(pane, nodes, links);
+
+  runSimulation(nodes, links, nodeEls, linkEls, width, height);
 }
 
 buildFilters();
