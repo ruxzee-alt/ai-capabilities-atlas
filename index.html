@@ -264,10 +264,24 @@ function buildCheckboxes(id, values, targetSet) {
   const el = document.getElementById(id);
   el.innerHTML = "";
   values.forEach(val => {
-    const cid = id + '_' + String(val).replace(/\\W+/g, '_');
-    const checked = targetSet.has(val) ? 'checked' : '';
-    el.insertAdjacentHTML('beforeend', `<label class="pill"><input id="${cid}" type="checkbox" value="${val}" ${checked}> ${val}</label>`);
-    document.getElementById(cid).addEventListener('change', (e) => { e.target.checked ? targetSet.add(val) : targetSet.delete(val); render(); });
+    const cid = id + '_' + String(val).replace(/\W+/g, '_');
+
+    const label = document.createElement('label');
+    label.className = 'pill';
+
+    const input = document.createElement('input');
+    input.id = cid;
+    input.type = 'checkbox';
+    input.value = val;
+    if (targetSet.has(val)) {
+      input.checked = true;
+    }
+
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(' ' + val));
+    el.appendChild(label);
+
+    input.addEventListener('change', (e) => { e.target.checked ? targetSet.add(val) : targetSet.delete(val); render(); });
   });
 }
 
