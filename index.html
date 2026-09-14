@@ -249,7 +249,11 @@ state.license = new Set(state.license || []);
 state.platforms = new Set(state.platforms || []);
 state.reg = new Set(state.reg || []);
 
+const _uniqueCache = new Map();
 function uniqueValues(selectorFn) {
+  const key = selectorFn.toString();
+  if (_uniqueCache.has(key)) return _uniqueCache.get(key);
+
   const set = new Set();
   for (const [domain, subs] of Object.entries(atlas)) { if (domain.startsWith('_')) continue;
     for (const [sub, payload] of Object.entries(subs)) {
@@ -257,7 +261,9 @@ function uniqueValues(selectorFn) {
       (Array.isArray(v) ? v : [v]).forEach(x => x && set.add(x));
     }
   }
-  return Array.from(set).sort();
+  const result = Array.from(set).sort();
+  _uniqueCache.set(key, result);
+  return result;
 }
 
 function buildCheckboxes(id, values, targetSet) {
